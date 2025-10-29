@@ -1,0 +1,86 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=zf3fEAHjRcJwvEDenmN7
+      - MYSQL_DATABASE=tlip_staging
+      - MYSQL_USER=tlip_staging
+      - MYSQL_PASSWORD=zf3fEAHjRcJwvEDenmN7
+
+    ports:
+      - "3306:3306"
+    volumes:
+      - "${MYSQL_VOLUME_DIR:-./volume}:/var/lib/mysqld"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  universal-resolver-web:
+    container_name: universal-resolver-web
+    image: universalresolver/uni-resolver-web:latest
+    ports:
+      - "18082:8080"
+    environment:
+      _JAVA_OPTIONS: -Dlogging.level.unresolver.client=TRACE
+
+  driver-did-iota:
+    container_name: driver-did-iota
+    image: iotaledger/uni-resolver-driver-iota:latest
+    environment:
+      NETWORK: testnet
+
+  hashicorp:
+    image: hashicorp/vault:1.21
+    container_name: hashicorp
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_DEV_ROOT_TOKEN_ID=root
+      - VAULT_ADDR=http://127.0.0.1:8200
+      - VAULT_TOKEN=root
+    ports:
+      - "8200:8200"
+    restart: unless-stopped
+    command: server -dev
+
+  twin-gas-station:
+    image: twinfoundation/twin-gas-station-test:20250623
+    container_name: twin-gas-station
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "8090:8090"
+
+  ipfs:
+    image: ipfs/kubo:latest
+    container_name: ipfs
+    restart: unless-stopped
+    environment:
+      IPFS_PROFILE: server
+      IPFS_PATH: /data/ipfs
+    ports:
+      # Swarm
+      - "4001:4001/tcp"
+      - "4001:4001/udp"
+      # API
+      - "5001:5001"
+      # Gateway
+      - "8080:8080"
+    volumes:
+      - ./ipfs/data:/data/ipfs
+      - ./ipfs/staging:/export
+
+  postgres:
+    container_name: postgres
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: victormutai
+      POSTGRES_USER: victormutai
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
