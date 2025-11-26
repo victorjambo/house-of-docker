@@ -68,7 +68,6 @@ services:
     volumes:
       - ./ipfs/data:/data/ipfs
       - ./ipfs/staging:/export
-
   postgres:
     container_name: postgres
     image: postgres:15
@@ -81,6 +80,29 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  localstack:
+    container_name: localstack
+    image: localstack/localstack
+    ports:
+      - "127.0.0.1:4566:4566" # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559" # external services port range
+    environment:
+      - DEBUG=${DEBUG-}
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - PERSISTENCE=1
+    volumes:
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+
+  dynamodb-admin:
+    container_name: dynamodb-admin
+    image: aaronshaf/dynamodb-admin
+    ports:
+      - 8001:8001
+    environment:
+      - DYNAMO_ENDPOINT=http://localstack:4566
+      - AWS_REGION=eu-central-1
 
 volumes:
   postgres_data:
