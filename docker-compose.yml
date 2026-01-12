@@ -3,10 +3,10 @@ services:
     image: mysql:8.0
     container_name: mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=zf3fEAHjRcJwvEDenmN7
-      - MYSQL_DATABASE=tlip_staging
-      - MYSQL_USER=tlip_staging
-      - MYSQL_PASSWORD=zf3fEAHjRcJwvEDenmN7
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=supply_chain_local
+      - MYSQL_USER=supply_chain
+      - MYSQL_PASSWORD=password
 
     ports:
       - "3306:3306"
@@ -51,5 +51,4 @@ services:
 
 
 volumes:
-  postgres_data:
   hashicorp-vault-data:
