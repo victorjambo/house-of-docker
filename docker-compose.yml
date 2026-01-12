@@ -14,20 +14,6 @@ services:
       - "${MYSQL_VOLUME_DIR:-./volume}:/var/lib/mysqld"
       - "/var/run/docker.sock:/var/run/docker.sock"
 
-  universal-resolver-web:
-    container_name: universal-resolver-web
-    image: universalresolver/uni-resolver-web:latest
-    ports:
-      - "18082:8080"
-    environment:
-      _JAVA_OPTIONS: -Dlogging.level.unresolver.client=TRACE
-
-  driver-did-iota:
-    container_name: driver-did-iota
-    image: iotaledger/uni-resolver-driver-iota:latest
-    environment:
-      NETWORK: testnet
-
   hashicorp:
     image: hashicorp/vault:1.21
     container_name: hashicorp
@@ -41,14 +27,8 @@ services:
       - "8200:8200"
     restart: unless-stopped
     command: server -dev
-
-  twin-gas-station:
-    image: twinfoundation/twin-gas-station-test:20250623
-    container_name: twin-gas-station
-    environment:
-      - NODE_ENV=development
-    ports:
-      - "8090:8090"
+    volumes:
+      - hashicorp-vault-data:/vault/file
 
   ipfs:
     image: ipfs/kubo:latest
@@ -68,41 +48,8 @@ services:
     volumes:
       - ./ipfs/data:/data/ipfs
       - ./ipfs/staging:/export
-  postgres:
-    container_name: postgres
-    image: postgres:15
-    restart: always
-    environment:
-      POSTGRES_DB: victormutai
-      POSTGRES_USER: victormutai
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
 
-  localstack:
-    container_name: localstack
-    image: localstack/localstack
-    ports:
-      - "127.0.0.1:4566:4566" # LocalStack Gateway
-      - "127.0.0.1:4510-4559:4510-4559" # external services port range
-    environment:
-      - DEBUG=${DEBUG-}
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - PERSISTENCE=1
-    volumes:
-      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-
-  dynamodb-admin:
-    container_name: dynamodb-admin
-    image: aaronshaf/dynamodb-admin
-    ports:
-      - 8001:8001
-    environment:
-      - DYNAMO_ENDPOINT=http://localstack:4566
-      - AWS_REGION=eu-central-1
 
 volumes:
   postgres_data:
+  hashicorp-vault-data:
