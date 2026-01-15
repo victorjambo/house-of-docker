@@ -26,7 +26,11 @@ services:
     ports:
       - "8200:8200"
     restart: unless-stopped
-    command: server -dev
+    command:
+      sh -c "vault server -dev -dev-root-token-id=root -dev-listen-address=0.0.0.0:8200 &
+      sleep 5 &&
+      VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=root vault secrets enable transit &&
+      wait"
     volumes:
       - hashicorp-vault-data:/vault/file
 
@@ -49,6 +53,28 @@ services:
       - ./ipfs/data:/data/ipfs
       - ./ipfs/staging:/export
 
+  redis:
+    image: redis:latest
+    container_name: gas-station-redis
+    volumes:
+      - redis_data:/data
+
+  gas-station:
+    image: iotaledger/gas-station:0.3.1
+    container_name: iota-gas-station
+    command: ["--config-path", "/app/gas-station-config.yaml"]
+    depends_on:
+      - redis
+    ports:
+      - "9527:9527" # RPC port
+      - "9184:9184" # Metrics port
+    environment:
+      - CONFIG_PATH=/app/gas-station-config.yaml
+      - RUST_BACKTRACE=1
+      - GAS_STATION_AUTH=token
+    volumes:
+      - ${LOCAL_CONFIG_PATH:-./gas-station-config.yaml}:/app/gas-station-config.yaml
 
 volumes:
   hashicorp-vault-data:
+  redis_data:
