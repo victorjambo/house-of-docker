@@ -15,5 +15,5 @@ make down
 To generate a new Sponsor address, delete config.yaml file:
 
 ```bash
-
+rm config.yaml
 ```
