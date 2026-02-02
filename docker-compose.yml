@@ -55,25 +55,25 @@ services:
 
   redis:
     image: redis:latest
-    container_name: gas-station-redis
+    container_name: redis-gas-station
     volumes:
       - redis_data:/data
 
   gas-station:
     image: iotaledger/gas-station:0.3.1
-    container_name: iota-gas-station
-    command: ["--config-path", "/app/gas-station-config.yaml"]
+    container_name: gas-station-iota
+    command: ["--config-path", "/app/config.yaml"]
     depends_on:
       - redis
     ports:
       - "9527:9527" # RPC port
       - "9184:9184" # Metrics port
     environment:
-      - CONFIG_PATH=/app/gas-station-config.yaml
+      - CONFIG_PATH=/app/config.yaml
       - RUST_BACKTRACE=1
       - GAS_STATION_AUTH=token
     volumes:
-      - ${LOCAL_CONFIG_PATH:-./gas-station-config.yaml}:/app/gas-station-config.yaml
+      - ${LOCAL_CONFIG_PATH:-./config.yaml}:/app/config.yaml
 
 volumes:
   hashicorp-vault-data:

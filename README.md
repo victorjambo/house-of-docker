@@ -1,7 +1,19 @@
 # House of docker
 
-To fire up the containers:
+Run the whole process: Simply type:
 
 ```bash
-docker compose up
+make up
+```
+
+Stop everything:
+
+```bash
+make down
+```
+
+To generate a new Sponsor address, delete config.yaml file:
+
+```bash
+
 ```
