@@ -31,3 +31,12 @@ down:
 
 logs:
 	docker compose logs -f
+
+reset:
+	@echo "--- Resetting docker containers ---"
+	docker compose down -v
+	
+	@echo "--- Starting docker containers ---"
+	docker compose up --build -d
+
+	@echo "--- 🚀 Done!!! ---"

@@ -11,8 +11,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - "${MYSQL_VOLUME_DIR:-./volume}:/var/lib/mysqld"
-      - "/var/run/docker.sock:/var/run/docker.sock"
+      - mysql_data:/var/lib/mysql
 
   hashicorp:
     image: hashicorp/vault:1.21
@@ -32,7 +31,7 @@ services:
       VAULT_ADDR=http://127.0.0.1:8200 VAULT_TOKEN=root vault secrets enable transit &&
       wait"
     volumes:
-      - hashicorp-vault-data:/vault/file
+      - hashicorp_vault_data:/vault/file
 
   ipfs:
     image: ipfs/kubo:latest
@@ -50,8 +49,8 @@ services:
       # Gateway
       - "8080:8080"
     volumes:
-      - ./ipfs/data:/data/ipfs
-      - ./ipfs/staging:/export
+      - ipfs_data:/data/ipfs
+      - ipfs_staging:/export
 
   redis:
     image: redis:latest
@@ -76,5 +75,8 @@ services:
       - ${LOCAL_CONFIG_PATH:-./config.yaml}:/app/config.yaml
 
 volumes:
-  hashicorp-vault-data:
+  hashicorp_vault_data:
   redis_data:
+  mysql_data:
+  ipfs_data:
+  ipfs_staging:
