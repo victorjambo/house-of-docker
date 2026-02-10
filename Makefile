@@ -21,6 +21,9 @@ up:
 		--data '{ "FixedAmountRequest": { "recipient": "'"$$ADDRESS"'" } }'; \
 		echo "--- ✅ DONE ---"; \
 	fi
+
+	echo "--- 🔐 Generating SSL certificate. ---";
+	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/privkey.pem -out certs/fullchain.pem -subj "/CN=localhost"
 	
 	@echo "--- 🐳 Starting Docker Compose ---"
 	docker compose up --build -d

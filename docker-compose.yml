@@ -84,6 +84,19 @@ services:
     volumes:
       - localstack_data:/var/lib/localstack
 
+  nginx-proxy:
+    container_name: nginx-proxy
+    image: nginx:alpine
+    ports:
+      - "3001:80"
+      - "3002:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/fullchain.pem:/etc/nginx/certs/fullchain.pem:ro
+      - ./certs/privkey.pem:/etc/nginx/certs/privkey.pem:ro
+    depends_on:
+      - hashicorp
+
 volumes:
   hashicorp_vault_data:
   redis_data:
