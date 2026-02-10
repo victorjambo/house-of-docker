@@ -6,7 +6,7 @@ SHELL := /bin/bash
 # Default target
 all: up
 
-up:
+up: certs
 	@# Check if config.yaml exists
 	@if [ -f config.yaml ]; then \
 		echo "--- ✅ Found 'config.yaml'. Skipping pre-flight script. ---"; \
@@ -22,9 +22,6 @@ up:
 		echo "--- ✅ DONE ---"; \
 	fi
 
-	echo "--- 🔐 Generating SSL certificate. ---";
-	openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout certs/privkey.pem -out certs/fullchain.pem -subj "/CN=localhost"
-	
 	@echo "--- 🐳 Starting Docker Compose ---"
 	docker compose up --build -d
 
@@ -43,3 +40,52 @@ reset:
 	docker compose up --build -d
 
 	@echo "--- 🚀 Done!!! ---"
+
+
+# ===============================
+# Local TLS setup using mkcert
+# ===============================
+
+CERTS_DIR := certs
+CERT_FILE := $(CERTS_DIR)/fullchain.pem
+KEY_FILE  := $(CERTS_DIR)/privkey.pem
+
+# Domains to generate certs for
+# Override like:
+# make certs DOMAINS="api.local.test localhost"
+DOMAINS ?= localhost node.supply-chain.localhost ::1
+
+.PHONY: certs clean check-mkcert install-mkcert
+
+## Default target
+certs: check-mkcert install-ca generate-certs
+	@echo "✅ TLS certs generated in $(CERTS_DIR)/"
+
+## Check if mkcert is installed
+check-mkcert:
+	@command -v mkcert >/dev/null 2>&1 || $(MAKE) install-mkcert
+
+## Install mkcert via Homebrew
+install-mkcert:
+	@echo "🔧 Installing mkcert via Homebrew..."
+	@command -v brew >/dev/null 2>&1 || (echo "❌ Homebrew is required"; exit 1)
+	@brew install mkcert nss
+
+## Install local CA (idempotent)
+install-ca:
+	@echo "🔐 Installing local CA (if not already installed)..."
+	@mkcert -install
+
+## Generate certificates
+generate-certs:
+	@mkdir -p $(CERTS_DIR)
+	@echo "📄 Generating certs for: $(DOMAINS)"
+	@mkcert \
+		-key-file $(KEY_FILE) \
+		-cert-file $(CERT_FILE) \
+		$(DOMAINS)
+
+## Clean generated certs
+clean:
+	@rm -rf $(CERTS_DIR)
+	@echo "🧹 Removed $(CERTS_DIR)/"
