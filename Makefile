@@ -53,7 +53,7 @@ KEY_FILE  := $(CERTS_DIR)/privkey.pem
 # Domains to generate certs for
 # Override like:
 # make certs DOMAINS="api.local.test localhost"
-DOMAINS ?= localhost node.supply-chain.localhost ::1
+DOMAINS ?= app.supply-chain.localhost api.supply-chain.localhost ::1
 
 .PHONY: certs clean check-mkcert install-mkcert
 
