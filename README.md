@@ -1,6 +1,10 @@
 # House of docker
 
-Run the whole process: Simply type:
+developer experience repository.
+
+## Running the app
+
+Run the whole process, Simply type:
 
 ```bash
 make up

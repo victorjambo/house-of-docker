@@ -97,6 +97,14 @@ services:
     depends_on:
       - hashicorp
 
+  uni-resolver-driver-iota:
+    container_name: uni-resolver-driver-iota
+    image: iotaledger/uni-resolver-driver-iota
+    ports:
+      - "8300:8080"
+    environment:
+      - NETWORK=testnet
+
 volumes:
   hashicorp_vault_data:
   redis_data:
